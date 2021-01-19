@@ -16,7 +16,8 @@ class Equipment:
     
 
 class Object:
-    pass
+    def __init__(self) -> None:
+        self.health = 1e8
 
 
 class Classes(Object):
@@ -63,6 +64,9 @@ class Classes(Object):
 
     def attributes(self):
         print(f'intellect: {self.sp}, haste: {self.has:.2%}, critical strike: {self.cri:.2%}, mastery: {self.mas:.2%}, versatility: {self.ver:.2%}')
+
+    def cast(self, spell_id):
+        print(self.spells[spell_id])
         
 
 class Spell:
@@ -78,6 +82,7 @@ class Spell:
         self.interval = interval
         self.duration = duration
         self.give_power = give_power
+        self.dot_count = 0
     
     @property
     def Damage(self):
@@ -89,18 +94,51 @@ class Spell:
 
     @property
     def Interval(self):
-        print(self.att.has)
-        return self.interval * (1-self.att.has)
+        return self.interval / (1+self.att.has)
 
     def __repr__(self) -> str:
         return spells_name[self.spell_id] 
 
 
+class Dot:
+    def __init__(self, spells):
+        self.periodic_damage = spells.periodic_damage
+        self.interval = spells.interval
+        self.duration = spells.duration
+
+class Simc:
+    def __init__(self, player) -> None:
+        self.t = 0
+        self.dt = 1e-2
+        self.player = player
+        self.damage = 0
+        self.dot_pool = []
+    
+    def start_simc(self, total_time):
+        for t in range(int(total_time / self.dt)):
+            if self.t == 0:
+                self.damage += self.player.spells[589].Damage
+                self.dot_pool.append(self.player.spells[589])
+            self.get_dot_damage()
+            self.t += self.dt
+    
+    def cal_dps(self):
+        print(f'dps: {self.damage / self.t}')
+    
+    def get_dot_damage(self):
+        for dot in self.dot_pool:
+            dot.dot_count += self.dt
+            dot.duration -= self.dt
+            if dot.dot_count >= dot.Interval:
+                self.damage += dot.Periodic_damage
+                dot.dot_count = 0
+            if dot.duration <= 0:
+                self.dot_pool.remove(dot)
+
+
 if __name__ == "__main__":
     x = Classes(intellect=1522, critical_strike=480, mastery=408, haste=827, versatility=100)
-    print(x.attributes())
-    print(x.spells[589].interval)
-    print(x.spells[589].Interval)
-    print(x.spells[589].duration)
-    print(x.spells[589].Periodic_damage * 1.0983)
-    print(x.spells[589].Periodic_damage * x.spells[589].duration / x.spells[589].Interval)
+    x.attributes()
+    s = Simc(x)
+    s.start_simc(10)
+    s.cal_dps()
