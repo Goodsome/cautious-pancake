@@ -1,0 +1,22 @@
+{
+    "589":{
+        "cast_time":0.0,
+        "gcd":1.5,
+        "cd":0.0,
+        "damage":0.1292,
+        "periodic_damage":0.09588,
+        "interval":2.0,
+        "duration":16.0,
+        "give_power":4.0
+    },
+    "34914":{
+        "cast_time":1.5,
+        "gcd":1.5,
+        "cd":0.0,
+        "damage":0.0,
+        "periodic_damage":0.1836,
+        "interval":3.0,
+        "duration":21.0,
+        "give_power":5.0
+    }
+}

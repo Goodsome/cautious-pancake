@@ -1,9 +1,28 @@
 from matplotlib.pyplot import axis
 import numpy as np
+from numpy.lib.arraysetops import isin
 import pyautogui
-import tensorflow as tf
 
 from config import config
+
+
+def run(key, interval=0.5):
+    pyautogui.sleep(interval)
+    if isinstance(key, str):
+        pyautogui.press(key)
+    elif isinstance(key, list):
+        if isinstance(key[0], str):
+            pyautogui.hotkey(*key)
+        else:
+            pyautogui.click(key)
+
+
+def run_macro(macro):
+    pyautogui.sleep(0.2)
+    pyautogui.press('enter')
+    pyautogui.write(macro)
+    pyautogui.sleep(0.8)
+    pyautogui.press('enter')
 
 
 def type_macro(macro_name):

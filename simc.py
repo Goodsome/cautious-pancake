@@ -1,3 +1,9 @@
+import json
+import pandas as pd
+
+from spells import spells, spells_name
+
+
 class Equipment:
     def __init__(self, gear, primary=0, critical_strike=0, mastery=0, haste=0, versatility=0) -> None:
         super().__init__()
@@ -8,13 +14,15 @@ class Equipment:
         self.haste = haste
         self.versatility = versatility
     
+
 class Object:
     pass
+
 
 class Classes(Object):
     def __init__(self, intellect=None, critical_strike=None, mastery=None, haste=None, versatility=None) -> None:
         super().__init__()
-        self.classes = 'shadow preist'
+        self.name = 'shadow'
         self.intellect = intellect
         self.critical_strike = critical_strike
         self.mastery = mastery
@@ -22,23 +30,27 @@ class Classes(Object):
         self.versatility = versatility
     
     @property
-    def Critical_strike(self):
+    def spells(self):
+        return {k: Spell(self, k, **v) for k, v in spells[self.name].items()}
+
+    @property
+    def cri(self):
         return self.critical_strike / 3500 + 0.05
     
     @property
-    def Mastery(self):
+    def mas(self):
         return self.mastery / 7000 + 0.04
     
     @property
-    def Haste(self):
+    def has(self):
         return self.haste / 3300
     
     @property
-    def Versatility(self):
+    def ver(self):
         return self.versatility / 4000
 
     @property
-    def Spells_power(self):
+    def sp(self):
         return self.intellect
 
     def equip(self, equipments: list):
@@ -50,36 +62,45 @@ class Classes(Object):
             self.versatility += e.versatility
 
     def attributes(self):
-        print(f'intellect: {self.Spells_power}, haste: {self.Haste:.2%}, critical strike: {self.Critical_strike:.2%}, mastery: {self.Mastery:.2%}, versatility: {self.Versatility:.2%}')
+        print(f'intellect: {self.sp}, haste: {self.has:.2%}, critical strike: {self.cri:.2%}, mastery: {self.mas:.2%}, versatility: {self.ver:.2%}')
         
 
-class Spells(Classes):
-    def __init__(self, spells_id, cast_time, gcd, cd, damage=None, periodic_damage=None, interval=None, duration=None, give_power=None) -> None:
-        super().__init__(intellect=1464)
-        self.spells_id = spells_id 
+class Spell:
+    def __init__(self, att, spell_id, cast_time, gcd, cd, damage=None, periodic_damage=None, interval=None, duration=None, give_power=None) -> None:
+        self.att = att 
+
+        self.spell_id = spell_id 
         self.cast_time = cast_time
         self.gcd = gcd
         self.cd = cd
         self.damage = damage
-        self.periodic_damage= periodic_damage
+        self.periodic_damage = periodic_damage
         self.interval = interval
         self.duration = duration
         self.give_power = give_power
     
     @property
     def Damage(self):
-        return self.Spells_power * self.damage
+        return self.att.sp * self.damage * (1+self.att.ver) * 1.2
 
     @property
     def Periodic_damage(self):
-        return self.Spells_power * self.periodic_damage
+        return self.att.sp * self.periodic_damage * (1+self.att.ver) * 1.2
+
+    @property
+    def Interval(self):
+        print(self.att.has)
+        return self.interval * (1-self.att.has)
+
+    def __repr__(self) -> str:
+        return spells_name[self.spell_id] 
 
 
 if __name__ == "__main__":
-    x = Classes(intellect=1464, critical_strike=517, mastery=335, haste=847, versatility=155)
-    x.attributes()
-    shadow = Spells(spells_id=589, cast_time=0, gcd=1.5, cd=0, damage=0.1292, periodic_damage=0.09588, interval=2, duration=16, give_power=4)
-    print(shadow.Damage)
-    print(shadow.Periodic_damage * 8)
-    print(254 / shadow.Damage)
-
+    x = Classes(intellect=1522, critical_strike=480, mastery=408, haste=827, versatility=100)
+    print(x.attributes())
+    print(x.spells[589].interval)
+    print(x.spells[589].Interval)
+    print(x.spells[589].duration)
+    print(x.spells[589].Periodic_damage * 1.0983)
+    print(x.spells[589].Periodic_damage * x.spells[589].duration / x.spells[589].Interval)
