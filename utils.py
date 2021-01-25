@@ -25,6 +25,10 @@ def run_macro(macro):
     pyautogui.press('enter')
 
 
+def interactive(target):
+    run_macro(f'/tar {target}')
+    run('`')
+
 def type_macro(macro_name):
     pyautogui.press('/')
     pyautogui.sleep(0.2)

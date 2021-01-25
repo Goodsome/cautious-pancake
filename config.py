@@ -4,3 +4,7 @@ config = {
 }
 
 equip = ''
+
+quest_info = {
+    '59929': {'npc': 'Warlord Breka Grimaxe'}
+}

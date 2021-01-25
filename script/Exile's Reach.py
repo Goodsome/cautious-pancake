@@ -41,7 +41,7 @@ class Quest:
         run('`')
     
     def battle(self):
-        for i in range(10):
+        for i in range(2):
             run('z', interval=1.5)
 
     def turn_arount(self, interval=1):
@@ -52,28 +52,24 @@ class Quest:
     def run(self):
         # self.interactive(self.npc)
         # pyautogui.sleep(10)
-        # self.interactive(self.target)
+        self.interactive(self.target)
         self.battle()
+        run(['shift', 'tab'])
+        run('`')
+        # pyautogui.sleep(5)
+        # self.interactive(self.npc)
 
 
 if __name__ == "__main__":
     run(['alt', 'tab'], interval=0)
     # start()
     # q0 = Quest('Warlord', 'Combat')
-    # q0.interactive(q0.npc)
-    # pyautogui.sleep(2)
-    # q0.interactive(q0.target)
-    # q0.battle()
-    # pyautogui.sleep(2)
-    # q0.interactive(q0.npc)
+    # q0.run()
     # q1 = Quest('Grunt', 'Grunt')
-    # q1.interactive(q1.npc)
-    # pyautogui.sleep(7)
-    # q1.interactive(q1.target)
-    # q1.battle()
-    # q1.interactive(q1.npc)
+    # q1.run()
     # q2 = Quest('Grunt', 'Warlord')
     # q2.interactive(q2.npc)
+    # q2.sleep(5)
     # q2.turn_arount(interval=0.8)
     # q2.interactive(q2.target)
     
