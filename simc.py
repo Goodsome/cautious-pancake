@@ -1,4 +1,5 @@
 import json
+import numpy as np
 import pandas as pd
 
 from spells import spells, spells_name
@@ -71,9 +72,9 @@ class Classes(Object):
 
 class Spell:
     def __init__(self, att, spell_id, cast_time, gcd, cd, damage=None, periodic_damage=None, interval=None, duration=None, give_power=None) -> None:
-        self.att = att 
+        self.att = att
 
-        self.spell_id = spell_id 
+        self.spell_id = spell_id
         self.cast_time = cast_time
         self.gcd = gcd
         self.cd = cd
@@ -86,11 +87,13 @@ class Spell:
     
     @property
     def Damage(self):
-        return self.att.sp * self.damage * (1+self.att.ver) * 1.2
+        crit = 1.5 if np.random.random() < self.att.cri else 1
+        return self.att.sp * self.damage * (1+self.att.ver) * crit
 
     @property
     def Periodic_damage(self):
-        return self.att.sp * self.periodic_damage * (1+self.att.ver) * 1.2
+        crit = 1.5 if np.random.random() < self.att.cri else 1
+        return self.att.sp * self.periodic_damage * (1+self.att.ver) * crit
 
     @property
     def Interval(self):
@@ -138,7 +141,6 @@ class Simc:
 
 if __name__ == "__main__":
     x = Classes(intellect=1522, critical_strike=480, mastery=408, haste=827, versatility=100)
-    x.attributes()
     s = Simc(x)
     s.start_simc(10)
     s.cal_dps()
