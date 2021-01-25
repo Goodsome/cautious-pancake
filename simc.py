@@ -98,6 +98,10 @@ class Spell:
     @property
     def Interval(self):
         return self.interval / (1+self.att.has)
+    
+    @property
+    def Total_Dot(self):
+        return self.Damage * self.duration / self.Interval
 
     def __repr__(self) -> str:
         return spells_name[self.spell_id] 
@@ -116,31 +120,60 @@ class Simc:
         self.player = player
         self.damage = 0
         self.dot_pool = []
+        self.gcd = 0
+        self.cast_time = 0
+        self.casting_spell = None
+        self.cast_queue = [589, 34914]
+        self.log = 'start simc\n'
+
+    def logging(self, log=None):
+        self.log += f'{self.t:.2f}s: damage: {self.damage:.2f} {log}\n'
     
     def start_simc(self, total_time):
         for t in range(int(total_time / self.dt)):
-            if self.t == 0:
-                self.damage += self.player.spells[589].Damage
-                self.dot_pool.append(self.player.spells[589])
-            self.get_dot_damage()
+            if self.gcd == 0 and self.cast_time == 0 and len(self.cast_queue) > 0:
+                spell_id = self.cast_queue.pop(0)
+                self.casting(spell_id)
+            if self.cast_time == 0 and self.casting_spell is not None:
+                self.cast_done()
+            self.dot_damage()
             self.t += self.dt
+            self.gcd = max(0, self.gcd - self.dt)
+            self.cast_time = max(0, self.cast_time - self.dt)
+
+    def casting(self, spell_id):
+        self.casting_spell = self.player.spells[spell_id]
+        self.gcd = self.casting_spell.gcd
+        self.cast_time = self.casting_spell.cast_time
+        self.gcd = max(self.casting_spell.gcd, self.casting_spell.cast_time)
+        self.logging(f'casting {self.casting_spell}')
     
+    def cast_done(self):
+        self.damage += self.casting_spell.Damage
+        self.dot_pool.append(self.casting_spell)
+        self.logging(f'cast done {self.casting_spell}')
+        self.casting_spell = None
+
     def cal_dps(self):
         print(f'dps: {self.damage / self.t}')
     
-    def get_dot_damage(self):
+    def dot_damage(self):
         for dot in self.dot_pool:
             dot.dot_count += self.dt
             dot.duration -= self.dt
             if dot.dot_count >= dot.Interval:
                 self.damage += dot.Periodic_damage
                 dot.dot_count = 0
+                self.logging(f'dot {dot}')
             if dot.duration <= 0:
                 self.dot_pool.remove(dot)
+                self.logging(f'dot over {dot}')
 
 
 if __name__ == "__main__":
     x = Classes(intellect=1522, critical_strike=480, mastery=408, haste=827, versatility=100)
     s = Simc(x)
     s.start_simc(10)
+    print(s.log)
     s.cal_dps()
+    print(x.spells[589].Damage, x.spells[589].Total_Dot)

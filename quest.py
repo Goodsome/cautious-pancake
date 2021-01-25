@@ -17,7 +17,6 @@ class Quest:
         type_macro('run C_QuestLog.AbandonQuest()')
         
 
-
 if __name__ == '__main__': 
     run(['alt', 'tab'], interval=0)
     q = Quest('59929')

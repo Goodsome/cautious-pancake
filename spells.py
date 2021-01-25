@@ -9,6 +9,6 @@ columns = 'cast_time, gcd, cd, damage, periodic_damage, interval, duration, give
 shadow_spells = pd.DataFrame(columns=columns)
 shadow_spells.index.name = 'spells_id'
 shadow_spells.loc[589] = [0, 1.5, 0, 0.1292*1.2, 0.09588*1.2, 2, 16, 4]
-shadow_spells.loc[34914] = [1.5, 1.5, 0, 0, 0.1836, 3, 21, 5]
+shadow_spells.loc[34914] = [1.5, 1.5, 0, 0, 0.1836*1.2, 3, 21, 5]
 
 spells['shadow'] = shadow_spells.to_dict(orient='index')
