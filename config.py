@@ -6,5 +6,6 @@ config = {
 equip = ''
 
 quest_info = {
-    '59929': {'npc': 'Warlord Breka Grimaxe'}
+    '59929': {'npc': 'Warlord Breka Grimaxe'},
+    '60257': {'npc': "Ta'lan the Anti"},
 }
