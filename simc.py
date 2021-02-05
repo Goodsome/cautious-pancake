@@ -86,6 +86,14 @@ class Spell:
         self.dot_count = 0
     
     @property
+    def Cast_time(self):
+        return self.cast_time / (1 + self.att.has)
+    
+    @property
+    def Gcd(self):
+        return self.gcd / (1 + self.att.has)
+
+    @property
     def Damage(self):
         crit = 1.5 if np.random.random() < self.att.cri else 1
         return self.att.sp * self.damage * (1+self.att.ver) * crit
@@ -101,7 +109,7 @@ class Spell:
     
     @property
     def Total_Dot(self):
-        return self.Damage * self.duration / self.Interval
+        return self.Periodic_damage * self.duration / self.Interval
 
     def __repr__(self) -> str:
         return spells_name[self.spell_id] 
@@ -123,14 +131,20 @@ class Simc:
         self.gcd = 0
         self.cast_time = 0
         self.casting_spell = None
-        self.cast_queue = [589, 34914]
+        self.cast_queue = [34914, 589]
         self.log = 'start simc\n'
+
+    @property
+    def mas_co(self):
+        return 1 + len(self.dot_pool) * self.player.mas
 
     def logging(self, log=None):
         self.log += f'{self.t:.2f}s: damage: {self.damage:.2f} {log}\n'
     
     def start_simc(self, total_time):
         for t in range(int(total_time / self.dt)):
+            if self.cast_time == 0 and self.casting_spell is not None:
+                self.cast_done()
             if self.gcd == 0 and self.cast_time == 0 and len(self.cast_queue) > 0:
                 spell_id = self.cast_queue.pop(0)
                 self.casting(spell_id)
@@ -143,14 +157,15 @@ class Simc:
 
     def casting(self, spell_id):
         self.casting_spell = self.player.spells[spell_id]
-        self.gcd = self.casting_spell.gcd
-        self.cast_time = self.casting_spell.cast_time
-        self.gcd = max(self.casting_spell.gcd, self.casting_spell.cast_time)
+        self.gcd = self.casting_spell.Gcd
+        self.cast_time = self.casting_spell.Cast_time
+        self.gcd = max(self.casting_spell.Gcd, self.casting_spell.Cast_time)
         self.logging(f'casting {self.casting_spell}')
     
     def cast_done(self):
-        self.damage += self.casting_spell.Damage
-        self.dot_pool.append(self.casting_spell)
+        if self.casting_spell.Periodic_damage > 0:
+            self.dot_pool.append(self.casting_spell)
+        self.damage += self.casting_spell.Damage * self.mas_co
         self.logging(f'cast done {self.casting_spell}')
         self.casting_spell = None
 
@@ -162,7 +177,7 @@ class Simc:
             dot.dot_count += self.dt
             dot.duration -= self.dt
             if dot.dot_count >= dot.Interval:
-                self.damage += dot.Periodic_damage
+                self.damage += dot.Periodic_damage * self.mas_co
                 dot.dot_count = 0
                 self.logging(f'dot {dot}')
             if dot.duration <= 0:
@@ -176,4 +191,3 @@ if __name__ == "__main__":
     s.start_simc(10)
     print(s.log)
     s.cal_dps()
-    print(x.spells[589].Damage, x.spells[589].Total_Dot)
